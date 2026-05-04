@@ -1,0 +1,53 @@
+# Kamal deploy config for Orra.
+#
+# Setup:
+#   cp .env.example .env  # fill in real values
+#   kamal setup           # first deploy (installs Docker on the host, etc.)
+#   kamal deploy          # subsequent deploys
+#
+# Secrets are read from .kamal/secrets (gitignored). See sample below.
+
+service: orra
+image: <your-dockerhub-user>/orra
+
+servers:
+  web:
+    - <your-hetzner-vm-ip>
+
+# Use Kamal's built-in proxy (kamal-proxy) for TLS + routing.
+proxy:
+  ssl: true
+  host: <podcast.example.com>
+  app_port: 8000
+  healthcheck:
+    path: /healthz
+    interval: 10
+
+registry:
+  server: ghcr.io        # or docker.io
+  username: <your-user>
+  password:
+    - KAMAL_REGISTRY_PASSWORD
+
+# Persistent volume for SQLite + audio files.
+volumes:
+  - "orra_data:/data"
+
+env:
+  clear:
+    BASE_URL: https://<podcast.example.com>
+    FEED_TITLE: "My Podcast"
+    FEED_DESCRIPTION: "Auto-generated single-voice episodes"
+    FEED_AUTHOR: "Your Name"
+    TTS_PROVIDER: elevenlabs   # or 'openai'
+    ELEVENLABS_VOICE_ID: JBFqnCBsd6RMkjVDRZzb  # default ElevenLabs voice
+    OPENAI_VOICE: alloy
+    ANTHROPIC_MODEL: claude-sonnet-4-6
+  secret:
+    - ANTHROPIC_API_KEY
+    - ELEVENLABS_API_KEY
+    - OPENAI_API_KEY
+    - AUTH_TOKEN
+
+# Use a separate accessory if you ever want a job runner; for now the web
+# container handles background threads itself.

@@ -1,0 +1,13 @@
+.git
+.venv
+__pycache__
+*.pyc
+.pytest_cache
+tests
+.env
+.env.*
+data
+*.sqlite3
+*.mp3
+.kamal
+config/deploy.yml.local
