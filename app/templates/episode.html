@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>{{ ep.title or ep.prompt[:60] }} — Orra</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+  <header>
+    <p><a href="{{ url_for('index') }}">&larr; All episodes</a></p>
+    <h1>{{ ep.title or "Untitled" }}</h1>
+    <p class="meta">
+      Status: <span class="status status-{{ ep.status }}">{{ ep.status }}</span>
+      &middot; {{ ep.target_minutes }} min target
+    </p>
+    <p class="prompt"><strong>Prompt:</strong> {{ ep.prompt }}</p>
+    {% if ep.error %}
+      <p class="error">Error: {{ ep.error }}</p>
+    {% endif %}
+  </header>
+
+  <main>
+    {% if ep.status in ("draft", "generating_transcript") %}
+      <p>Generating transcript… <a href="">refresh</a></p>
+    {% endif %}
+
+    {% if ep.transcript %}
+      <section>
+        <h2>Transcript</h2>
+        <pre class="transcript">{{ ep.transcript }}</pre>
+      </section>
+
+      {% if ep.status != "published" %}
+        <section>
+          <h2>Refine</h2>
+          <form method="post" action="{{ url_for('edit_episode', episode_id=ep.id) }}">
+            <label>
+              Edit instruction
+              <input type="text" name="instruction" required
+                placeholder="e.g. make the intro punchier; cut the second section in half">
+            </label>
+            <button type="submit">Apply edit</button>
+          </form>
+        </section>
+
+        <section>
+          <h2>Publish</h2>
+          <form method="post" action="{{ url_for('publish_episode', episode_id=ep.id) }}">
+            <button type="submit">Generate audio &amp; publish</button>
+          </form>
+        </section>
+      {% endif %}
+    {% endif %}
+
+    {% if ep.status == "generating_audio" %}
+      <p>Synthesising audio… this can take a minute or two. <a href="">refresh</a></p>
+    {% endif %}
+
+    {% if ep.audio_path %}
+      <section>
+        <h2>Audio</h2>
+        <audio controls src="{{ url_for('audio', filename=ep.audio_path) }}"></audio>
+        <p><a href="{{ url_for('audio', filename=ep.audio_path) }}" download>Download MP3</a></p>
+        <p>Subscribe in your podcast app: <code>{{ request.url_root }}feed.xml</code></p>
+      </section>
+    {% endif %}
+  </main>
+</body>
+</html>

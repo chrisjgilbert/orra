@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Orra — generate an episode</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+  <header>
+    <h1>Orra</h1>
+    <p>Single-voice podcast generator. <a href="/feed.xml">RSS feed</a></p>
+  </header>
+
+  <main>
+    <section>
+      <h2>New episode</h2>
+      <form method="post" action="{{ url_for('create_episode') }}">
+        <label>
+          Prompt
+          <textarea name="prompt" rows="4" required
+            placeholder="e.g. why people reach for event-driven architecture"></textarea>
+        </label>
+        <label>
+          Target length (minutes)
+          <input type="number" name="target_minutes" value="20" min="1" max="60">
+        </label>
+        <button type="submit">Generate transcript</button>
+      </form>
+    </section>
+
+    <section>
+      <h2>Episodes</h2>
+      {% if episodes %}
+        <ul class="episode-list">
+        {% for ep in episodes %}
+          <li>
+            <a href="{{ url_for('show_episode', episode_id=ep.id) }}">
+              {{ ep.title or ep.prompt[:80] }}
+            </a>
+            <span class="status status-{{ ep.status }}">{{ ep.status }}</span>
+          </li>
+        {% endfor %}
+        </ul>
+      {% else %}
+        <p>No episodes yet.</p>
+      {% endif %}
+    </section>
+  </main>
+</body>
+</html>
