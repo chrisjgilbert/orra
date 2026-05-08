@@ -1,14 +1,14 @@
 # Orra
 
-Personal podcast / audio narration tool. Flask app that turns a prompt into a single-voice episode: Claude writes the transcript, a TTS provider (ElevenLabs or OpenAI) renders the audio, and an RSS feed is served at `/feed.xml`.
+Personal podcast / audio narration tool. Flask app that turns a prompt into a single-voice episode: Claude writes the transcript, a TTS provider (OpenAI or ElevenLabs) renders the audio, and an RSS feed is served at `/feed.xml`.
 
 ## Requirements
 
 - Python 3.11+
 - An `ANTHROPIC_API_KEY`
 - One TTS provider key:
-  - `ELEVENLABS_API_KEY` (default), or
-  - `OPENAI_API_KEY` with `TTS_PROVIDER=openai`
+  - `OPENAI_API_KEY` (default), or
+  - `ELEVENLABS_API_KEY` with `TTS_PROVIDER=elevenlabs`
 
 ## Configuration
 
@@ -18,9 +18,9 @@ Personal podcast / audio narration tool. Flask app that turns a prompt into a si
 ANTHROPIC_API_KEY=sk-ant-...
 ANTHROPIC_MODEL=claude-opus-4-7         # optional
 
-TTS_PROVIDER=elevenlabs                 # or "openai"
-ELEVENLABS_API_KEY=...
-ELEVENLABS_VOICE_ID=JBFqnCBsd6RMkjVDRZzb # optional
+TTS_PROVIDER=openai                     # or "elevenlabs"
+OPENAI_API_KEY=...
+OPENAI_VOICE=alloy                       # optional
 
 DB_PATH=./data/orra.sqlite3
 AUDIO_DIR=./data/audio
@@ -57,7 +57,7 @@ Open http://localhost:8000.
 docker build -t orra .
 docker run --rm -p 8000:8000 \
   -e ANTHROPIC_API_KEY=... \
-  -e ELEVENLABS_API_KEY=... \
+  -e OPENAI_API_KEY=... \
   -v "$PWD/data:/data" \
   orra
 ```

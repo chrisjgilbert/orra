@@ -47,12 +47,12 @@ env:
     FEED_TITLE: "Orra Podcast"
     FEED_DESCRIPTION: "Auto-generated single-voice episodes"
     FEED_AUTHOR: "Chris Gilbert"
-    TTS_PROVIDER: elevenlabs
-    ELEVENLABS_VOICE_ID: JBFqnCBsd6RMkjVDRZzb
+    TTS_PROVIDER: openai
+    OPENAI_VOICE: alloy
     ANTHROPIC_MODEL: claude-sonnet-4-6
   secret:
     - ANTHROPIC_API_KEY
-    - ELEVENLABS_API_KEY
+    - OPENAI_API_KEY
     - AUTH_TOKEN
 
 # Run commands on the deployed host:

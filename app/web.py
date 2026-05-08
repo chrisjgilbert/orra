@@ -40,7 +40,7 @@ def _build_transcript_generator() -> Any:
 def _build_tts_provider() -> Any:
     from app.tts import get_provider
 
-    name = os.environ.get("TTS_PROVIDER", "elevenlabs")
+    name = os.environ.get("TTS_PROVIDER", "openai")
     if name == "elevenlabs":
         api_key = os.environ.get("ELEVENLABS_API_KEY")
         voice_id = os.environ.get("ELEVENLABS_VOICE_ID", "JBFqnCBsd6RMkjVDRZzb")

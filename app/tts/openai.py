@@ -5,7 +5,7 @@ from app.tts.base import TTSProvider, TTSError
 
 class OpenAIProvider(TTSProvider):
     URL = "https://api.openai.com/v1/audio/speech"
-    MODEL_ID = "tts-1-hd"
+    MODEL_ID = "gpt-4o-mini-tts"
 
     def synthesize(self, text: str) -> bytes:
         try:
