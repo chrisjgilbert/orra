@@ -19,7 +19,7 @@ servers:
 # kamal-proxy terminates TLS and forwards to the app container.
 proxy:
   ssl: true
-  host: podcast.gilbert.works
+  host: orra.gilbert.works
   app_port: 8000
   # Most requests return in <100ms (heavy work runs on background threads),
   # but raise the proxy timeout so a synchronous publish path won't get cut off.
@@ -43,7 +43,7 @@ volumes:
 
 env:
   clear:
-    BASE_URL: https://podcast.gilbert.works
+    BASE_URL: https://orra.gilbert.works
     FEED_TITLE: "Orra Podcast"
     FEED_DESCRIPTION: "Auto-generated single-voice episodes"
     FEED_AUTHOR: "Chris Gilbert"
