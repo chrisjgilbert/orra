@@ -82,6 +82,9 @@ def create_app(
         defaults.update(config)
     app.config.update(defaults)
 
+    app.config["DB_PATH"] = os.path.abspath(app.config["DB_PATH"])
+    app.config["AUDIO_DIR"] = os.path.abspath(app.config["AUDIO_DIR"])
+
     init_db(app.config["DB_PATH"])
     os.makedirs(app.config["AUDIO_DIR"], exist_ok=True)
 

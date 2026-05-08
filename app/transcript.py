@@ -1,4 +1,8 @@
+import logging
+import time
 from typing import Any, Optional
+
+log = logging.getLogger(__name__)
 
 WORDS_PER_MINUTE = 150
 DEFAULT_MODEL = "claude-sonnet-4-6"
@@ -50,12 +54,20 @@ class TranscriptGenerator:
             f"{prompt}\n\n"
             f"Use web_search for any current facts. Single narrator, plain prose."
         )
+        log.info("anthropic.generate start model=%s target_minutes=%s", self.model, target_minutes)
+        t0 = time.monotonic()
         resp = self.client.messages.create(
             model=self.model,
             max_tokens=8000,
             system=SYSTEM_PROMPT,
             tools=self._web_search_tools(),
             messages=[{"role": "user", "content": user_msg}],
+        )
+        log.info(
+            "anthropic.generate done elapsed=%.1fs stop_reason=%s usage=%s",
+            time.monotonic() - t0,
+            getattr(resp, "stop_reason", None),
+            getattr(resp, "usage", None),
         )
         return extract_text_from_response(resp).strip()
 
@@ -64,12 +76,15 @@ class TranscriptGenerator:
             f"INSTRUCTION:\n{instruction}\n\n"
             f"CURRENT TRANSCRIPT:\n{transcript}"
         )
+        log.info("anthropic.edit start model=%s", self.model)
+        t0 = time.monotonic()
         resp = self.client.messages.create(
             model=self.model,
             max_tokens=8000,
             system=EDIT_SYSTEM_PROMPT,
             messages=[{"role": "user", "content": user_msg}],
         )
+        log.info("anthropic.edit done elapsed=%.1fs usage=%s", time.monotonic() - t0, getattr(resp, "usage", None))
         return extract_text_from_response(resp).strip()
 
     def generate_title(self, prompt: str, transcript: str) -> str:
@@ -78,10 +93,13 @@ class TranscriptGenerator:
             f"Topic: {prompt}\n\nOpening of the script:\n{excerpt}\n\n"
             f"Write the episode title."
         )
+        log.info("anthropic.title start model=%s", self.model)
+        t0 = time.monotonic()
         resp = self.client.messages.create(
             model=self.model,
             max_tokens=60,
             system=TITLE_SYSTEM_PROMPT,
             messages=[{"role": "user", "content": user_msg}],
         )
+        log.info("anthropic.title done elapsed=%.1fs usage=%s", time.monotonic() - t0, getattr(resp, "usage", None))
         return extract_text_from_response(resp).strip().strip('"').strip("'")

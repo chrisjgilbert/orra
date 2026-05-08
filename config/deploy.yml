@@ -1,53 +1,60 @@
-# Kamal deploy config for Orra.
+# Kamal 2 deploy config for Orra. Runs alongside cookery-notes on the same
+# Hetzner VPS — Kamal happily multiplexes apps on one host via kamal-proxy.
 #
 # Setup:
-#   cp .env.example .env  # fill in real values
-#   kamal setup           # first deploy (installs Docker on the host, etc.)
-#   kamal deploy          # subsequent deploys
-#
-# Secrets are read from .kamal/secrets (gitignored). See sample below.
+#   cp .kamal/secrets.example .kamal/secrets.local  # fill in real values
+#   set -a; source .kamal/secrets.local; set +a
+#   kamal setup    # first deploy (installs Docker on the host, etc.)
+#   kamal deploy   # subsequent deploys
 
 service: orra
-image: <your-dockerhub-user>/orra
+
+image: cjgilbert/orra
 
 servers:
   web:
-    - <your-hetzner-vm-ip>
+    hosts:
+      - 46.224.179.132
 
-# Use Kamal's built-in proxy (kamal-proxy) for TLS + routing.
+# kamal-proxy terminates TLS and forwards to the app container.
 proxy:
   ssl: true
-  host: <podcast.example.com>
+  host: podcast.gilbert.works
   app_port: 8000
+  # Most requests return in <100ms (heavy work runs on background threads),
+  # but raise the proxy timeout so a synchronous publish path won't get cut off.
+  response_timeout: 150
   healthcheck:
     path: /healthz
-    interval: 10
+    interval: 5
+    timeout: 10
 
 registry:
-  server: ghcr.io        # or docker.io
-  username: <your-user>
+  username: cjgilbert
   password:
     - KAMAL_REGISTRY_PASSWORD
 
-# Persistent volume for SQLite + audio files.
+builder:
+  arch: amd64 # Hetzner CX VMs are x86_64
+
+# Persistent volume for the SQLite db + audio files.
 volumes:
   - "orra_data:/data"
 
 env:
   clear:
-    BASE_URL: https://<podcast.example.com>
-    FEED_TITLE: "My Podcast"
+    BASE_URL: https://podcast.gilbert.works
+    FEED_TITLE: "Orra Podcast"
     FEED_DESCRIPTION: "Auto-generated single-voice episodes"
-    FEED_AUTHOR: "Your Name"
-    TTS_PROVIDER: elevenlabs   # or 'openai'
-    ELEVENLABS_VOICE_ID: JBFqnCBsd6RMkjVDRZzb  # default ElevenLabs voice
-    OPENAI_VOICE: alloy
+    FEED_AUTHOR: "Chris Gilbert"
+    TTS_PROVIDER: elevenlabs
+    ELEVENLABS_VOICE_ID: JBFqnCBsd6RMkjVDRZzb
     ANTHROPIC_MODEL: claude-sonnet-4-6
   secret:
     - ANTHROPIC_API_KEY
     - ELEVENLABS_API_KEY
-    - OPENAI_API_KEY
     - AUTH_TOKEN
 
-# Use a separate accessory if you ever want a job runner; for now the web
-# container handles background threads itself.
+# Run commands on the deployed host:
+#   kamal app exec -i "sqlite3 /data/orra.sqlite3"
+#   kamal app logs -f
