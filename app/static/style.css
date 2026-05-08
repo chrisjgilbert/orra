@@ -25,6 +25,7 @@ form label {
 }
 
 form input[type="text"],
+form input[type="password"],
 form input[type="number"],
 form textarea {
   display: block;
@@ -47,6 +48,18 @@ button {
 }
 
 button:hover { background: #333; }
+
+.inline-form { display: inline; }
+
+.link-button {
+  background: none;
+  color: #0366d6;
+  padding: 0;
+  text-decoration: underline;
+  font: inherit;
+}
+
+.link-button:hover { background: none; color: #024; }
 
 .episode-list {
   list-style: none;

@@ -1,0 +1,24 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Orra — sign in</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+  <header>
+    <h1>Orra</h1>
+  </header>
+
+  <main>
+    <form method="post" action="{{ url_for('login_submit') }}">
+      <label>
+        Token
+        <input type="password" name="token" autofocus required>
+      </label>
+      {% if error %}<p class="error">{{ error }}</p>{% endif %}
+      <button type="submit">Sign in</button>
+    </form>
+  </main>
+</body>
+</html>

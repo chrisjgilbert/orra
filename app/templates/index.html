@@ -8,7 +8,12 @@
 <body>
   <header>
     <h1>Orra</h1>
-    <p>Single-voice podcast generator. <a href="/feed.xml">RSS feed</a></p>
+    <p>Single-voice podcast generator. <a href="/feed.xml">RSS feed</a>
+      &middot;
+      <form method="post" action="{{ url_for('logout') }}" class="inline-form">
+        <button type="submit" class="link-button">Sign out</button>
+      </form>
+    </p>
   </header>
 
   <main>

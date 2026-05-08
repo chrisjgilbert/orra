@@ -48,9 +48,36 @@ def _auth(token="secret"):
     return {"Authorization": f"Bearer {token}"}
 
 
-def test_index_requires_auth(client):
+def test_index_redirects_unauthenticated_to_login(client):
     resp = client.get("/")
+    assert resp.status_code == 302
+    assert resp.headers["Location"].endswith("/login")
+
+
+def test_index_returns_401_with_bad_bearer_token(client):
+    resp = client.get("/", headers={"Authorization": "Bearer wrong"})
     assert resp.status_code == 401
+
+
+def test_login_post_sets_cookie_and_redirects(client):
+    resp = client.post("/login", data={"token": "secret"})
+    assert resp.status_code == 302
+    assert "orra_token=secret" in resp.headers.get("Set-Cookie", "")
+
+
+def test_login_post_rejects_bad_token(client):
+    resp = client.post("/login", data={"token": "wrong"})
+    assert resp.status_code == 401
+
+
+def test_logout_clears_cookie_and_redirects(client):
+    client.set_cookie("orra_token", "secret")
+    resp = client.post("/logout")
+    assert resp.status_code == 302
+    assert resp.headers["Location"].endswith("/login")
+    set_cookie = resp.headers.get("Set-Cookie", "")
+    assert "orra_token=" in set_cookie
+    assert "Expires=" in set_cookie or "Max-Age=0" in set_cookie
 
 
 def test_index_renders_with_auth(client):

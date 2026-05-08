@@ -115,11 +115,14 @@ def _require_auth(view):
             return view(*args, **kwargs)
         header = request.headers.get("Authorization", "")
         provided = header.removeprefix("Bearer ").strip()
-        if provided != token:
-            cookie = request.cookies.get("orra_token", "")
-            if cookie != token:
-                return Response("unauthorized", status=401)
-        return view(*args, **kwargs)
+        if provided == token:
+            return view(*args, **kwargs)
+        cookie = request.cookies.get("orra_token", "")
+        if cookie == token:
+            return view(*args, **kwargs)
+        if not header and not cookie:
+            return redirect(url_for("login"))
+        return Response("unauthorized", status=401)
 
     return wrapped
 
@@ -132,6 +135,33 @@ def _kick_job(target, *args, **kwargs) -> None:
 
 
 def _register_routes(app: Flask) -> None:
+    @app.get("/login")
+    def login():
+        return render_template("login.html")
+
+    @app.post("/logout")
+    def logout():
+        resp = redirect(url_for("login"))
+        resp.delete_cookie("orra_token")
+        return resp
+
+    @app.post("/login")
+    def login_submit():
+        token = app.config.get("AUTH_TOKEN")
+        submitted = request.form.get("token", "")
+        if not token or submitted != token:
+            return render_template("login.html", error="Invalid token"), 401
+        resp = redirect(url_for("index"))
+        resp.set_cookie(
+            "orra_token",
+            token,
+            max_age=60 * 60 * 24 * 365,
+            httponly=True,
+            secure=request.is_secure,
+            samesite="Lax",
+        )
+        return resp
+
     @app.get("/")
     @_require_auth
     def index():
