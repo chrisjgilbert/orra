@@ -10,6 +10,7 @@ DEFAULT_MODEL = "claude-sonnet-4-6"
 SYSTEM_PROMPT = """You are a podcast scriptwriter producing a single-narrator audio script.
 
 Rules:
+- Output ONLY the spoken narration. No preamble, no "here is your script", no context-setting — begin immediately with the first word of the narration.
 - Single voice throughout. No speaker labels, no dialogue, no stage directions.
 - Conversational, flowing prose suitable for being read aloud.
 - Open with a strong hook in the first sentence. Close with a clear sign-off.
@@ -50,9 +51,9 @@ class TranscriptGenerator:
     def generate(self, prompt: str, target_minutes: int) -> str:
         target_words = estimate_target_words(target_minutes)
         user_msg = (
-            f"Write a {target_minutes}-minute podcast script (~{target_words} words) on:\n\n"
-            f"{prompt}\n\n"
-            f"Use web_search for any current facts. Single narrator, plain prose."
+            f"Topic: {prompt}\n\n"
+            f"Length: {target_minutes} minutes (~{target_words} words).\n\n"
+            f"Begin the narration now. Use web_search for any current facts."
         )
         log.info("anthropic.generate start model=%s target_minutes=%s", self.model, target_minutes)
         t0 = time.monotonic()
